@@ -4,11 +4,11 @@ These are my bash settings. They are loaded, when opening up the terminal using 
 
 Example path:
 
-    stefan@mac:~/private/tutorials $
+    stefan@mac:~/private/tutorials$
 
 Example git repo:
 
-    stefan@mac:~/private/bash_settings [master]$
+    stefan@mac:~/private/bash_settings[master]$
 
 ## Source
 
