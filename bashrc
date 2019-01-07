@@ -3,7 +3,8 @@
 # #######################################################
 # Bashrc file that takes care of my settings independent
 #   of macos oder linux (WSL)
-#  
+# When editing this file, you may watch for results using
+#   echo bashrc | entr ./bashrc 
 # #######################################################
 
 # Get current branch in git repo
@@ -58,12 +59,20 @@ export CLICOLOR=1
 export LSCOLORS=GxFxCxDxBxegedabagaced
 export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\`parse_git_branch\`\$ "
 
-# Add user bin (independent of os stuff) to path
-export PATH=$PATH:$HOME/bin
 
 # Find directory of current script independent of PWD
 # Taken from https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+
+# Add user bin (independent of os stuff) to path
+export PATH=$PATH:$HOME/bin:$DIR/bin
+
 
 # Check arch and add os dependent stuff to PATH
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
