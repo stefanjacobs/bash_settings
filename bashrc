@@ -79,7 +79,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo "Linux-gnu detected"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     export PATH=$PATH:$DIR/bin_mac 
-    . go_path.sh
+    . env_go_path_set.sh
 elif [[ "$OSTYPE" == "cygwin" ]]; then
     echo "Cygwin detected"
 elif [[ "$OSTYPE" == "msys" ]]; then
@@ -99,4 +99,6 @@ fi
 RAND=$(( ${RANDOM}%3 ))
 if [ $RAND -eq 0 ]; then 
     fortune | cowsay | lolcat
+elif [ $RAND -eq 1 ]; then
+    neofetch
 fi
