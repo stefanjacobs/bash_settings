@@ -116,7 +116,15 @@ fi
 # In some other cases, output system specs using neofetch (e.g. 33%).
 RAND=$(( ${RANDOM}%3 ))
 if [ $RAND -eq 0 ]; then 
-    fortune | cowsay | lolcat
+	if [ -x "$(command -v fortune)" ] && [ -x "$(command -v cowsay)" ] && [ -x "$(command -v lolcat)" ]; then
+  		fortune | cowsay | lolcat
+	else
+		echo 'Error: One of more of fortune, cowsay or lolcat is not installed.' >&2
+	fi
 elif [ $RAND -eq 1 ]; then
-    neofetch
+	if [ -x "$(command -v neofetch)" ]; then
+  		neofetch
+	else
+		echo 'Error: neofetch is not installed.' >&2
+	fi
 fi
