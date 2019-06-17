@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # #######################################################
 # Bashrc file that takes care of my settings independent
@@ -88,7 +88,10 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 # Add user bin (independent of os stuff) to path
-export PATH=$PATH:$HOME/bin:$DIR/bin
+export PATH=$PATH:$HOME/bin:$DIR/bin:$HOME/go/bin
+
+# Add Makefile target completion to bash autocomplete
+complete -W "\`grep -oE '^[a-zA-Z0-9_.-]+:([^=]|$)' Makefile | sed 's/[^a-zA-Z0-9_.-]*$//'\`" make
 
 
 # Check arch and add os dependent stuff to PATH
@@ -109,9 +112,6 @@ else
     echo "ERROR: Detected OSTYPE ${OSTYPE}"
 fi
 
-# Set the local proxy environment. No case yet for not setting the proxy, sadly.
-. $HOME/bin/env_proxy_set.sh
-
 # Finishing with a lesson learned from the cow in some random cases, e.g. 33%.
 # In some other cases, output system specs using neofetch (e.g. 33%).
 RAND=$(( ${RANDOM}%3 ))
@@ -128,3 +128,21 @@ elif [ $RAND -eq 1 ]; then
 		echo 'Error: neofetch is not installed.' >&2
 	fi
 fi
+
+alias c=clear
+
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.bash ] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.bash
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.bash ] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.bash
+# tabtab source for slss package
+# uninstall by removing these lines or running `tabtab uninstall slss`
+[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.bash ] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/slss.bash
+
+export BASH_COMPLETION_COMPAT_DIR=/usr/local/etc/bash_completion.d
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] &&
+  . "/usr/local/etc/profile.d/bash_completion.sh"
+
+source <(kubectl completion bash)
