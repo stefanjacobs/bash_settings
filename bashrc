@@ -54,10 +54,23 @@ function parse_git_dirty {
 	fi
 }
 
-# Set Terminal to color mode and special handling of git repos
-export CLICOLOR=1
-export LSCOLORS=GxFxCxDxBxegedabagaced
-export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\`parse_git_branch\`\$ "
+# iTerm2 shell integration
+test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+
+# iTerm2 tab titles
+function title {
+  if [ "$1" ] ; then
+    test -e "${HOME}/.iterm2_shell_integration.bash" \
+      && export PROMPT_COMMAND='iterm2_preexec_invoke_cmd' \
+      || unset PROMPT_COMMAND
+    echo -ne "\033]0;${*}\007"
+  else
+    test -e "${HOME}/.iterm2_shell_integration.bash" \
+      && export PROMPT_COMMAND='echo -ne "\033]0;${PWD/#$HOME/~}\007";iterm2_preexec_invoke_cmd' \
+      || export PROMPT_COMMAND='echo -ne "\033]0;${PWD/#$HOME/~}\007"'
+  fi
+}
+title
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -88,11 +101,14 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
 # Add user bin (independent of os stuff) to path
-export PATH=$PATH:$HOME/bin:$DIR/bin:$HOME/go/bin
+export PATH=$PATH:$HOME/bin:$DIR/bin:$HOME/go/bin:/usr/local/sbin:
 
 # Add Makefile target completion to bash autocomplete
 complete -W "\`grep -oE '^[a-zA-Z0-9_.-]+:([^=]|$)' Makefile | sed 's/[^a-zA-Z0-9_.-]*$//'\`" make
 
+# Jenv stuff
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
 
 # Check arch and add os dependent stuff to PATH
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
@@ -117,7 +133,9 @@ fi
 RAND=$(( ${RANDOM}%3 ))
 if [ $RAND -eq 0 ]; then 
 	if [ -x "$(command -v fortune)" ] && [ -x "$(command -v cowsay)" ] && [ -x "$(command -v lolcat)" ]; then
-  		fortune | cowsay | lolcat
+		cowlist=( $(cowsay -l | sed "1 d") );
+		thechosencow=${cowlist[$(($RANDOM % ${#cowlist[*]}))]}
+		fortune | cowsay -f "$thechosencow" | lolcat
 	else
 		echo 'Error: One of more of fortune, cowsay or lolcat is not installed.' >&2
 	fi
@@ -130,6 +148,8 @@ elif [ $RAND -eq 1 ]; then
 fi
 
 alias c=clear
+alias weather="ansiweather -s true -d true -f 5 -l Dornheim,DE"
+alias ops="for (( ; ; )); do c; ops.sh; sleep 1800; done"
 
 # tabtab source for serverless package
 # uninstall by removing these lines or running `tabtab uninstall serverless`
@@ -146,3 +166,19 @@ export BASH_COMPLETION_COMPAT_DIR=/usr/local/etc/bash_completion.d
   . "/usr/local/etc/profile.d/bash_completion.sh"
 
 source <(kubectl completion bash)
+
+# Set Terminal to color mode and special handling of git repos
+export CLICOLOR=1
+export LSCOLORS=GxFxCxDxBxegedabagaced
+export PS1="\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\W\[\033[00m\]\`parse_git_branch\`\$ "
+
+[[ -r "/usr/local/opt/kube-ps1/share/kube-ps1.sh" ]] &&
+  source /usr/local/opt/kube-ps1/share/kube-ps1.sh
+
+export PS1='$(kube_ps1)'$PS1
+kubeoff
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
